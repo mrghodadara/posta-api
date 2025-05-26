@@ -7,5 +7,5 @@ export interface IUser {
   password: string;
   avatar?: string;
   provider: UserProvider;
-  status: UserStatus;
+  status?: UserStatus;
 }
