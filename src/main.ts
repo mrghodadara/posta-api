@@ -6,6 +6,10 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.setGlobalPrefix('api/v1');
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+  });
   app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()

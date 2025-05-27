@@ -7,6 +7,6 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
   getUser(@User() user) {
-    return user;
+    return { user };
   }
 }

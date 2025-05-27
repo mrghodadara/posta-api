@@ -21,7 +21,7 @@ export class PostsService {
 
   async getPosts() {
     try {
-      const response = await this.postsModel.find();
+      const response = await this.postsModel.find().populate('user');
       return response;
     } catch {
       throw new BadRequestException('Getting error');
@@ -30,7 +30,20 @@ export class PostsService {
 
   async getPost(id: string) {
     try {
-      const response = await this.postsModel.findById(id);
+      const response = await this.postsModel.findById(id).populate('user');
+      return response;
+    } catch {
+      throw new BadRequestException('Getting error');
+    }
+  }
+
+  async getPostsByUser(user: string) {
+    try {
+      const response = await this.postsModel
+        .find({
+          user,
+        })
+        .populate('user');
       return response;
     } catch {
       throw new BadRequestException('Getting error');

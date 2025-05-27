@@ -23,7 +23,7 @@ export class AuthService {
     const alreadyUser = await this.usersService.getUserByEmail(email);
 
     if (alreadyUser) {
-      throw new BadRequestException('Email already in use');
+      throw new BadRequestException('A user with this email already exists.');
     }
 
     const hasePassword = await bcrypt.hash(password, 10);
