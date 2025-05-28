@@ -2,11 +2,12 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from 'src/users/users.service';
 import { SignUpDto } from './dto/sign-up.dto';
-import { UserProvider } from 'src/users/interface/user.enum';
+import { UserProvider, UserStatus } from 'src/users/interface/user.enum';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -61,6 +62,12 @@ export class AuthService {
       throw new NotFoundException('Invalid email or password');
     }
 
+    if (user?.status === UserStatus.DELETED) {
+      throw new UnauthorizedException(
+        'Your account is not active. Please contact support',
+      );
+    }
+
     const accessToken = this.jwtService.sign({ _id: user?._id });
 
     return {
@@ -70,7 +77,6 @@ export class AuthService {
   }
 
   async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {
-    console.log('user?._id', userId);
     const { currentPassword, newPassword } = changePasswordDto;
 
     const user = await this.usersService.getUserById(userId);
@@ -95,6 +101,22 @@ export class AuthService {
     return {
       data: {
         message: 'Password changed successfully',
+      },
+    };
+  }
+
+  async deleteAccount(userId: string) {
+    const user = await this.usersService.getUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.usersService.updateUser(userId, { status: UserStatus.DELETED });
+
+    return {
+      data: {
+        message: 'Your account has been successfully deleted',
       },
     };
   }

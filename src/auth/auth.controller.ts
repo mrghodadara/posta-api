@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { LoginDto } from './dto/login.dto';
@@ -27,5 +27,11 @@ export class AuthController {
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
     return this.authService.changePassword(user?._id, changePasswordDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('account')
+  async deleteAccount(@User() user) {
+    return this.authService.deleteAccount(user?._id);
   }
 }

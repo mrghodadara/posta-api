@@ -26,7 +26,7 @@ export class User {
     enum: UserStatus,
     default: UserStatus.ACTIVE,
   })
-  status: string;
+  status: UserStatus;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
