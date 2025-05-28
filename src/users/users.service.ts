@@ -40,13 +40,10 @@ export class UsersService {
     }
   }
 
-  async updateUser(id: string, user: IUser) {
+  async updateUser(id: string, user: Partial<IUser>) {
     try {
       const response = await this.userModel.findByIdAndUpdate(id, {
-        firstName: user?.firstName,
-        lastName: user?.lastName,
-        password: user?.password,
-        avatar: user?.avatar,
+        ...user,
       });
 
       return response;
