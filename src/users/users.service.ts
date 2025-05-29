@@ -42,10 +42,21 @@ export class UsersService {
 
   async updateUser(id: string, user: Partial<IUser>) {
     try {
-      const response = await this.userModel.findByIdAndUpdate(id, {
-        ...user,
-      });
+      const response = await this.userModel.findByIdAndUpdate(
+        id,
+        {
+          ...user,
+        },
+        { new: true },
+      );
 
+      console.log('response', response);
+      return {
+        data: {
+          user: response,
+          message: 'User updated successfully',
+        },
+      };
       return response;
     } catch {
       throw new BadRequestException('Invalid user id');
