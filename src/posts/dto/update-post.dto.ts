@@ -10,5 +10,5 @@ export class UpdatePostDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  description: string;
+  content: string;
 }

@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import {
+  ArrayMinSize,
+  ArrayNotEmpty,
+  IsArray,
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
 
 export class CreatePostDto {
   @ApiProperty()
@@ -10,5 +16,12 @@ export class CreatePostDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  description: string;
+  content: string;
+
+  @ApiProperty()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  tags: string[];
 }

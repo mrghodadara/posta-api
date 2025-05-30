@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Posts } from './schema/posts.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostStatus } from './interface/post.enum';
+import { generateUniqueSlug } from 'src/utils/generateUniqueSlug';
 
 @Injectable()
 export class PostsService {
@@ -12,8 +13,15 @@ export class PostsService {
 
   async createPost(user: string, post: CreatePostDto) {
     try {
-      const response = await this.postsModel.create({ ...post, user });
-      return response;
+      const slug = await generateUniqueSlug(post.title, this.postsModel);
+
+      const response = await this.postsModel.create({ ...post, slug, user });
+      return {
+        data: {
+          post: response,
+          message: 'Post created',
+        },
+      };
     } catch {
       throw new BadRequestException('Getting error while creating post');
     }
@@ -21,8 +29,20 @@ export class PostsService {
 
   async getPosts() {
     try {
-      const response = await this.postsModel.find().populate('user');
-      return response;
+      const response = await this.postsModel
+        .find({
+          status: {
+            $ne: PostStatus.DELETED,
+          },
+        })
+        .populate('user', '-password')
+        .exec();
+
+      return {
+        data: {
+          posts: response,
+        },
+      };
     } catch {
       throw new BadRequestException('Getting error');
     }
@@ -31,7 +51,27 @@ export class PostsService {
   async getPost(id: string) {
     try {
       const response = await this.postsModel.findById(id).populate('user');
-      return response;
+      return {
+        data: {
+          post: response,
+        },
+      };
+    } catch {
+      throw new BadRequestException('Getting error');
+    }
+  }
+  async getPostBySlug(slug: string) {
+    try {
+      const response = await this.postsModel
+        .findOne({
+          slug,
+        })
+        .populate('user');
+      return {
+        data: {
+          post: response,
+        },
+      };
     } catch {
       throw new BadRequestException('Getting error');
     }
@@ -41,10 +81,19 @@ export class PostsService {
     try {
       const response = await this.postsModel
         .find({
-          user,
+          user: new mongoose.Types.ObjectId(user),
+          status: {
+            $ne: PostStatus.DELETED,
+          },
         })
-        .populate('user');
-      return response;
+        .populate('user', '-password')
+        .exec();
+
+      return {
+        data: {
+          posts: response,
+        },
+      };
     } catch {
       throw new BadRequestException('Getting error');
     }
@@ -55,7 +104,12 @@ export class PostsService {
       const response = await this.postsModel.findByIdAndUpdate(id, {
         ...post,
       });
-      return response;
+      return {
+        data: {
+          post: response,
+          message: 'Post updated',
+        },
+      };
     } catch {
       throw new BadRequestException('Getting error');
     }

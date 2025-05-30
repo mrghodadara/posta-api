@@ -21,7 +21,7 @@ export class PostsController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   async createPost(@User() user, @Body() post: CreatePostDto) {
-    return this.postsService.createPost(user?.id, post);
+    return this.postsService.createPost(user?._id, post);
   }
 
   @Get()
@@ -34,17 +34,24 @@ export class PostsController {
     return this.postsService.getPost(id);
   }
 
+  @Get('/slug/:slug')
+  async getPostBySlug(@Param('slug') slug: string) {
+    return this.postsService.getPostBySlug(slug);
+  }
+
   @Get('user/:userId')
   async getPostsByUser(@Param('userId') userId: string) {
     return this.postsService.getPostsByUser(userId);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard('jwt'))
   async updatePost(@Param('id') id: string, @Body() post: UpdatePostDto) {
     return this.postsService.updatePost(id, post);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
   async deletePost(@Param('id') id: string) {
     return this.postsService.deletePost(id);
   }
